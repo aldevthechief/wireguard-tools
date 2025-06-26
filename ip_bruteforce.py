@@ -4,7 +4,7 @@ import pywinauto
 from time import sleep
 
 max_connection_retries = 5
-root_dir_path = 'C:\\Users\\admin\\RKN_bypass\\'
+root_dir_path = 'C:\\Users\\admin\\wireguard-tools\\'
 anmezia_wg_path = 'C:\\Program Files\\AmneziaWG\\amneziawg.exe'
 connection_check_host = '74.208.159.18'
 
