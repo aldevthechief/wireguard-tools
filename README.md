@@ -23,7 +23,7 @@ pip install wireguard-tools
 ### 2. ip_bruteforce.py
 Tests WireGuard configurations and finds working Cloudflare WARP endpoint IPs on your local machine.
 
-**Prerequisites**:
+**PREREQUISITIES**:
 - Place your `WARP.conf` inside the local copy of the repo
 - Install pywinauto library
 ```bash
