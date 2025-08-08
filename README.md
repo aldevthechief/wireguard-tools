@@ -1,9 +1,9 @@
-# WireGuard Tools for AmneziaWG
+# WireGuard tools for AmneziaWG
 This repository contains two essential scripts to simplify working with AmneziaWG, a privacy-enhanced WireGuard protocol. These tools help generate optimized configurations and verify connectivity to **Cloudflare WARP 1.1.1.1 VPN**. 
 
 The combination of AmneziaWG's advanced obfuscation with WARP's privacy infrastructure creates powerful dual-layer protection for your connections.
 
-## Tools Overview
+## Tools overview
 
 ### 1. generate_config.py
 Generates WireGuard configurations compatible with AmneziaWG using Cloudflare's WARP service.
