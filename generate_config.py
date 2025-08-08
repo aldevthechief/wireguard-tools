@@ -24,9 +24,7 @@ d = {
     'locale' : 'en_US'
 }
 
-req = requests.post(url=api_link, data=json.dumps(d).replace(' ', ''), headers=headers)
-
-response = json.loads(json.dumps(req.json()))
+response = requests.post(url=api_link, data=json.dumps(d).replace(' ', ''), headers=headers).json()
 
 user_id = response['result']['id']
 token = response['result']['token']
@@ -38,9 +36,8 @@ headers = {
 }
 
 api_link += f'/{user_id}'
-req = requests.patch(url=api_link, data='{"warp_enabled":true}', headers=headers)
+response = requests.patch(url=api_link, data='{"warp_enabled":true}', headers=headers).json()
 
-response = json.loads(json.dumps(req.json()))
 config = response['result']['config']
 
 peer_key = config['peers'][0]['public_key']
