@@ -4,8 +4,8 @@ import pywinauto
 from time import sleep
 
 max_connection_retries = 5
-file_dir_path = 'C:\\Users\\admin\\wireguard-tools\\' or pathlib.Path.cwd()
-anmezia_wg_path = 'C:\\Program Files\\AmneziaWG\\amneziawg.exe'
+file_dir_path = '' or pathlib.Path.cwd()
+anmezia_wg_path = ''
 connection_check_host = '74.208.159.18'
 
 def create_config(template : list[str], filenum : int):
