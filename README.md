@@ -46,7 +46,50 @@ stop using the computer while endpoints are being tested.
 Generates NAT64-formatted WARP endpoints from the IPv4 addresses and IPv6
 prefixes defined in the script.
 
-## Installation
+## Generate a Config in Google Colab
+
+Google Colab is the recommended way to generate `WARP.conf` when Cloudflare
+WARP registration requests are blocked by the local network or ISP. The
+registration request is made from the Colab runtime instead of your local
+connection.
+
+1. Open [Google Colab](https://colab.research.google.com/) and create a new
+   notebook.
+2. Install the config generator dependencies:
+
+```python
+!pip install requests wireguard-tools aioquic cryptography
+```
+
+3. Upload `generate_config.py` and `generate_packet.py`:
+
+```python
+from google.colab import files
+files.upload()
+```
+
+4. Generate a config with the defaults:
+
+```python
+!python generate_config.py
+```
+
+You can pass the same command-line options in Colab:
+
+```python
+!python generate_config.py --i1 quic-obfuscated --domain zoom.us -p 4500 -d google -k 15
+```
+
+5. Download the generated config:
+
+```python
+files.download("WARP.conf")
+```
+
+Import `WARP.conf` into AmneziaWG. The file contains your private key, so do
+not share it and delete it from the Colab runtime when you are finished.
+
+## Local Installation
 
 Clone or download the repository, open a terminal in its directory, and install
 the dependencies:
@@ -57,7 +100,10 @@ pip install requests wireguard-tools aioquic cryptography pywinauto
 
 `ip_bruteforce.py` requires Windows and an installed AmneziaWG client.
 
-## Generate a Config
+## Generate a Config Locally
+
+Local generation works when the Cloudflare WARP registration API is reachable
+from your connection. Otherwise, use the Google Colab method above.
 
 Generate a config with the defaults:
 
