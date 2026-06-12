@@ -1,5 +1,4 @@
 us_ip.py
-*.md
 *.conf
 *.idea
 __pycache__

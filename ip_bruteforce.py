@@ -17,11 +17,19 @@ def create_config(template : list[str], filenum : int):
     return
 
 
+def replace_endpoint(template: list[str], endpoint: str) -> None:
+    """Replace the Endpoint entry without changing other config lines."""
+    for index, line in enumerate(template):
+        if line.strip().startswith('Endpoint ='):
+            template[index] = f'Endpoint = {endpoint}\n'
+            return
+    raise ValueError('WARP.conf does not contain an Endpoint entry')
+
+
 if __name__ == '__main__':
     with open('WARP.conf') as config:
         config_template = config.readlines()
 
-    endpoint_wrapper = lambda s: f'Endpoint = {s}\n'
     socket.setdefaulttimeout(2)
 
     ip_lst = []
@@ -42,7 +50,7 @@ if __name__ == '__main__':
     for ip in ip_lst:
         file_num += 1
         endpoint_addr = ip
-        config_template[-1] = endpoint_wrapper(endpoint_addr)
+        replace_endpoint(config_template, endpoint_addr)
         create_config(config_template, file_num)
 
         dialog['Toolbar'].click()

@@ -1,42 +1,112 @@
-# WireGuard tools for AmneziaWG
-This repository contains two essential scripts to simplify working with AmneziaWG, a privacy-enhanced WireGuard protocol. These tools help generate optimized configurations and verify connectivity to **Cloudflare WARP 1.1.1.1 VPN**. 
+# AmneziaWG WARP Tools
 
-The combination of AmneziaWG's advanced obfuscation with WARP's privacy infrastructure creates powerful dual-layer protection for your connections.
+A small collection of Python tools for generating configurable Cloudflare WARP
+profiles for AmneziaWG and testing alternative WARP endpoint IP addresses.
 
-## Tools overview
+The config generator supports multiple `I1` packet styles, selectable endpoint
+ports, Cloudflare or Google DNS, custom DNS addresses, custom QUIC domains, and
+configurable persistent keepalive values. The endpoint tester automates
+AmneziaWG in the background so it does not take over the mouse or interrupt
+normal user activity.
 
-### 1. generate_config.py
-Generates WireGuard configurations compatible with AmneziaWG using Cloudflare's WARP service.
+## Tools Overview
 
-**HOW TO USE**:
-1. Open [Google Colab](https://colab.research.google.com/)
-2. Create a new notebook
-3. Run this installation command in a new terminal:
+### `generate_config.py`
+
+Registers a new Cloudflare WARP profile and writes an AmneziaWG-compatible
+configuration to `WARP.conf`.
+
+Available options:
+
+- `--i1`: `stun`, `quic-captured`, or `quic-obfuscated`
+- `-p`, `--port`: endpoint port `2408` or `4500`
+- `-d`, `--dns`: `cloudflare`, `google`, or custom comma-separated addresses
+- `-k`, `--keepalive`: `PersistentKeepalive` value
+- `-do`, `--domain`: domain used to generate QUIC packets
+
+### `generate_packet.py`
+
+Provides the packet-generation functions used by `generate_config.py`:
+
+- STUN binding-request I1 packets
+- QUIC Initial packets generated for a selected domain
+- Rebuilt QUIC packets padded to make DPI identification more difficult
+
+### `ip_bruteforce.py`
+
+Tests Cloudflare WARP endpoint ranges from `cf_ips_v4.txt` on ports `2408` and
+`4500`. It creates temporary configurations, imports them into AmneziaWG,
+checks connectivity, and records the results in `connection_log.txt`.
+
+The AmneziaWG automation runs in the background and does not require you to
+stop using the computer while endpoints are being tested.
+
+### `us_ip.py`
+
+Generates NAT64-formatted WARP endpoints from the IPv4 addresses and IPv6
+prefixes defined in the script.
+
+## Installation
+
+Clone or download the repository, open a terminal in its directory, and install
+the dependencies:
+
 ```bash
-pip install wireguard-tools
+pip install requests wireguard-tools aioquic cryptography pywinauto
 ```
-4. Copy-paste the contents of generate_config.py into a new cell
-5. Run the script
-6. Download the generated WARP.conf file
-7. Import this configuration into your AmneziaWG client
 
-### 2. ip_bruteforce.py
-Tests WireGuard configurations and finds working Cloudflare WARP endpoint IPs on your local machine.
+`ip_bruteforce.py` requires Windows and an installed AmneziaWG client.
 
-**PREREQUISITIES**:
-- Place your `WARP.conf` inside the local copy of the repo
-- Install pywinauto library
+## Generate a Config
+
+Generate a config with the defaults:
+
 ```bash
-pip install pywinauto
+python generate_config.py
 ```
-- Edit these paths in the script before running:
-```python
-root_dir_path = "" # repo folder
-amnezia_wg_path = "" # amnezia wg install path
+
+The defaults use a STUN I1 packet, port `2408`, Cloudflare DNS,
+`PersistentKeepalive = 5`, and `zoom.us` as the QUIC domain.
+
+Generate a captured-style QUIC config for a custom domain:
+
+```bash
+python generate_config.py --i1 quic-captured --domain example.com
 ```
-- Close unnecessary applications and run the script
 
-⚠️ **Do not interact with your machine during execution** ⚠️  
-   *(The script automates UI interactions - mouse/keyboard input will disrupt it)*
+Generate an obfuscated QUIC config with Google DNS and port `4500`:
 
-**Connection status info for each tested ip will be printed out in the console.**
+```bash
+python generate_config.py --i1 quic-obfuscated -p 4500 -d google -k 15
+```
+
+Pass custom DNS addresses as one quoted, comma-separated value:
+
+```bash
+python generate_config.py -d "9.9.9.9, 149.112.112.112"
+```
+
+View every option:
+
+```bash
+python generate_config.py --help
+```
+
+After generation, import `WARP.conf` into AmneziaWG.
+
+## Test WARP Endpoints
+
+1. Generate or place `WARP.conf` in the repository directory.
+2. Set `anmezia_wg_path` in `ip_bruteforce.py` to your AmneziaWG executable.
+3. Set `file_dir_path` to the repository directory, including its trailing
+   path separator, for example `C:\Users\name\wireguard-tools\`.
+4. Make sure `cf_ips_v4.txt` contains the Cloudflare endpoint prefixes to test.
+5. Run:
+
+```bash
+python ip_bruteforce.py
+```
+
+Test results are printed in the terminal and appended to
+`connection_log.txt`. Temporary numbered WARP configs are removed as testing
+progresses.
