@@ -4,7 +4,7 @@ import pywinauto
 from time import sleep
 
 max_connection_retries = 5
-root_dir_path = 'C:\\Users\\admin\\wireguard-tools\\'
+file_dir_path = 'C:\\Users\\admin\\wireguard-tools\\' or pathlib.Path.cwd()
 anmezia_wg_path = 'C:\\Program Files\\AmneziaWG\\amneziawg.exe'
 connection_check_host = '74.208.159.18'
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     socket.setdefaulttimeout(2)
 
     ip_lst = []
-    cf_ports = [2408, 500, 1701, 4500]
+    cf_ports = [2408, 4500]
     with open('cf_ips_v4.txt') as f:
         for ip_range in f:
             for end in range(256):
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     app = pywinauto.Application().start(anmezia_wg_path)
     app = pywinauto.Application().connect(title="AmneziaWG", timeout=5)
 
-    dialog = app.top_window()
+    dialog = app.window(title_re='AmneziaWG')
 
     file_num = 0
     can_connect = False
@@ -47,11 +47,11 @@ if __name__ == '__main__':
 
         dialog['Toolbar'].click()
 
-        dialog = app.top_window()
-        dialog['&Имя файла:Edit'].set_edit_text(f'{root_dir_path}WARP{file_num}.conf')
+        dialog = app.window(title_re='Импорт туннелей из файла')
+        dialog['&Имя файла:Edit'].set_edit_text(f'{file_dir_path}WARP{file_num}.conf')
         dialog['&ОткрытьButton'].click()
 
-        dialog = app.top_window()
+        dialog = app.window(title_re='AmneziaWG')
         dialog['Button'].click()
 
         while not dialog['Button'].is_enabled():
@@ -71,7 +71,10 @@ if __name__ == '__main__':
 
         dialog['Button'].click()
 
-        if can_connect:
-            print(endpoint_addr)
-        else:
-            print('connection failed', endpoint_addr)
+        with open('connection_log.txt', 'a') as f:
+            if can_connect:
+                print(endpoint_addr)
+                f.writelines(endpoint_addr)
+            else:
+                print('connection failed', endpoint_addr)
+                f.writelines('connection failed ' + endpoint_addr)
